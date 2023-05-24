@@ -1,0 +1,182 @@
+#!/data/data/com.termux/files/usr/bin/python3
+from  sys import argv
+from os import system as sys
+
+class YTDownloader():
+    def __init__(self) -> None:
+        try:
+            self.URL = argv [1]
+        except:
+            self.URL = ''
+            while 'https' not in self.URL :
+                try:
+                    self.URL = input("Enter The URL> ")
+                except KeyboardInterrupt:
+                    exit()
+
+        if 'https://youtu' not in self.URL:
+            print("Invalid Url\nExiting...")
+            exit() 
+
+
+        if 'playlist' in self.URL :
+            self.playlist()
+        else:
+            self.single()
+
+        self.execute()
+
+
+    def single(self,value=0) -> None:
+        sys("clear")
+        if value == 1:
+            print("Invalid option\nEnter a valid Option")
+        choice = input("\n[1] Audio\n[2] Video\n>")
+        if choice == '1':
+            PART1 = self.audio()
+        elif choice == '2':
+            PART1 = self.video()
+        else:
+            PART1 = ''
+            self.single(1)
+        self.COMMAND = PART1
+
+    def playlist(self,value=0) -> None:
+        PLAYLIST = ' -o "%(playlist_index)s-%(title)s.%(ext)s" --yes-playlist '
+        sys("clear")
+        if value == 1:
+            print("Invalid option\nEnter a valid Option")
+        choice = input("\n[1] Audio\n[2] Video\n>")
+        if choice == '1':
+            PART1 = self.audio()
+        elif choice == '2':
+            PART1 = self.video()
+        else:
+            PART1 = ''
+            self.playlist(1)
+
+        def trimmer(t=0) -> str:
+            sys("clear")
+            if t == 1:
+                print("Invalid Input\nEnter a Valid Input")
+            print("[0] Download Entire Playlist\n[1] Specific Range")
+            o = input(" >")
+            if o == '0':
+                TRIMMER = ''
+            elif o == '1':
+                start = input("Enter The Starting Number >")
+                end   = input("Enter the End Number      >")
+                TRIMMER = " --playlist-start {} --playlist-end {} ".format(start,end)
+            else:
+                TRIMMER = trimmer()
+            return TRIMMER
+
+        TRIMMER = trimmer()
+        self.COMMAND = PART1 + PLAYLIST + TRIMMER
+
+        
+    def video(self,value=0) -> str:
+        def quality(q=0):
+            sys("clear")
+            if value == 1:
+                print("Invalid option\nEnter a valid Option")
+            print("Select The Quality")
+            video_quality = ['Default',144,240,360,480,540,680,720,1080]
+            for i in video_quality:
+                print("[{}] {}".format(str(video_quality.index(i)),str(i)))
+            try:
+                q = video_quality [int(input(' >'))]
+                t = 0
+            except:
+                t = 1
+            print(q)
+            if t == 0:
+                if q == 'Default':
+                    QUALITY = ''
+                else:
+                    QUALITY = "  -f 'bestvideo[height<={}]+bestaudio' ".format(str(q))
+            else:
+                QUALITY = quality()
+            return QUALITY
+        #######################################################
+        def format(f=0) -> str:
+            sys("clear")
+            if f == 1:
+                print("Invalid option\nEnter a valid Option")
+            print("Select The Format")
+            vformats = ['Default','mp4','mkv','flv']
+            for i in vformats:
+                print("[{}] {}".format(str(vformats.index(i)),str(i)))
+            try:
+                v = vformats [int(input(' >'))]
+                t = 0
+            except:
+                v = ''
+                t = 1
+            if t == 0:
+                if v == 'Default':
+                    FORMAT = ''
+                else:
+                    FORMAT = " merge-output-format {} ".format(v)
+            else:
+                FORMAT = format(1)
+            return FORMAT
+
+        FORMAT  = format()
+        QUALITY = quality()
+        return QUALITY + FORMAT
+
+    def audio(self) -> str: 
+        AUDIO = " --extract-audio "
+        def format(f=0):
+            sys("clear")
+            if f==1:
+                print("Invalid Option\nEnter a Valid Option")
+            print("Select The Format")
+            aformate = ['Default','m4a','mp3','ogg']
+            for i in aformate:
+                print("[{}] {}".format(str(aformate.index(i)),i))
+            try:
+                f = aformate [int(input(" >"))]
+                t = 0
+            except:
+                f = ''
+                t = 1
+            if t == 0:
+                if f == 'Default':
+                    FORMAT = ''
+                else:
+                    FORMAT = " --audio-format {} ".format(f)
+            else:
+                FORMAT = format(1)
+            return FORMAT
+
+        def bitrate(b=0) -> str:
+            sys("clear")
+            if b==1:
+                print("Invalid Option\nEnter a Valid Option")
+            print("Select The Bitrate")
+            abitrate = ['Best','192kbps','128kbps','64kbps']
+            for i in abitrate:
+                print("[{}] {}".format(str(abitrate.index(i)),i))
+            bit = ['0','1','2','3']
+            b = input(" >")
+            if b in bit:
+                BITRATE = " --audio-quality {} ".format(b)
+            else:
+                BITRATE = bitrate(1)
+            return BITRATE
+
+        FORMAT = format()
+        BITRATE = bitrate()
+        return AUDIO + FORMAT + BITRATE
+
+    def execute(self) -> None:
+        YT_DLP = "yt-dlp"+self.COMMAND+ '"'+self.URL+'"'
+        sys("clear")
+        print(YT_DLP)
+        sys(YT_DLP)
+
+
+YT = YTDownloader()
+
