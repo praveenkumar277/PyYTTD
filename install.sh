@@ -5,5 +5,5 @@ cd ~/bin/
 wget https://raw.githubusercontent.com/praveenkumar277/PyYTTD/main/termux-url-opener
 chmod +x termux-url-opener
 cd -
-echo "Installation Finished "
+echo "Installation Finished"
 
