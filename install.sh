@@ -1,4 +1,4 @@
-pkg install python
+pkg install python wget git
 pip install yt-dlp
 mkdir ~/bin/
 cd ~/bin/
