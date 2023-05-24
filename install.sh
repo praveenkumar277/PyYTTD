@@ -1,3 +1,4 @@
+termux-setup-storage
 pkg install python wget git
 pip install yt-dlp
 mkdir ~/bin/
