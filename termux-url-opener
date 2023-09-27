@@ -1,0 +1,169 @@
+#!/data/data/com.termux/files/usr/bin/python3
+import colorama, sys, os
+SAVE_DIR = '"/storage/emulated/0/Download/'
+# Colour Definitions...
+Red     = colorama.Fore.RED
+Green   = colorama.Fore.GREEN
+Blue    = colorama.Fore.BLUE
+Yellow  = colorama.Fore.YELLOW
+Cyan    = colorama.Fore.CYAN
+Magenta = colorama.Fore.MAGENTA 
+Reset   = colorama.Fore.RESET + colorama.Style.RESET_ALL
+Dim     = colorama.Style.DIM
+Bright  = colorama.Style.BRIGHT
+##
+# Class Audio Video
+class AV():
+    def __init__(self) -> None:
+        self.av_dict = {
+        0:('{}[{}0{}]{}   64k    '.format(Blue,Cyan,Blue,Yellow)   ,'{}audio  '.format(Magenta)," --extract-audio --audio-quality 66k ",),
+        1:('{}[{}1{}]{}   128k   '.format(Blue,Cyan,Blue,Yellow)   ,'{}audio  '.format(Magenta)," --extract-audio --audio-quality 128k ",),
+        2:('{}[{}2{}]{}   192k   '.format(Blue,Cyan,Blue,Yellow)   ,'{}audio\n'.format(Magenta)," --extract-audio --audio-quality 192K ",),
+        3:('{}[{}3{}]{}   144p   '.format(Blue,Cyan,Blue,Green)    ,'{}video  '.format(Blue)," -f 'bestvideo[height<=144]+bestaudio[abr<=64]'",),
+        4:('{}[{}4{}]{}   240p   '.format(Blue,Cyan,Blue,Green)    ,'{}video  '.format(Blue)," -f 'bestvideo[height<=240]+bestaudio[abr<=64]'",),
+        5:('{}[{}5{}]{}   360p   '.format(Blue,Cyan,Blue,Green)    ,'{}video  '.format(Blue)," -f 'bestvideo[height<=360]+bestaudio[abr<=129]'",),
+        6:('{}[{}6{}]{}   480p   '.format(Blue,Cyan,Blue,Green)    ,'{}video  '.format(Blue)," -f 'bestvideo[height<=480]+bestaudio[abr<=129]'",),
+        7:('{}[{}7{}]{}   720p   '.format(Blue,Cyan,Blue,Green)    ,'{}video  '.format(Blue)," -f 'bestvideo[height<=720]+bestaudio[abr<=193]'",),
+        8:('{}[{}8{}]{}   1080p  '.format(Blue,Cyan,Blue,Green)    ,'{}video\n'.format(Blue)," -f 'bestvideo[height<=1080]+bestaudio[abr<=193]'",),
+        9:('{}[{}9{}]{}   Full   '.format(Blue,Cyan,Blue,Red)      ,'{}audio  '.format(Magenta)," --extract-audio  ",),
+        10:('{}[{}10{}]{}  Full  '.format(Blue,Cyan,Blue,Red)      ,'{} video '.format(Blue)," -f 'bestvideo+bestaudio'")
+        }
+        self.aformats = {
+        0:('{}[{}0{}]{} opus {} fast'.format(Blue,Cyan,Blue,Green,Blue),''),
+        1:('{}[{}1{}]{} mp3'.format(Blue,Cyan,Blue,Green)," --audio-format mp3 "),
+        2:('{}[{}2{}]{} m4a'.format(Blue,Cyan,Blue,Green)," --audio-format m4a "),
+        3:('{}[{}3{}]{} ogg'.format(Blue,Cyan,Blue,Green)," --audio-format ogg "),
+        4:('{}[{}4{}]{} wav'.format(Blue,Cyan,Blue,Green)," --audio-format wav ")
+        }
+        self.vformats = {
+        0:('{}[{}0{}]{} webm {} fast'.format(Blue,Cyan,Blue,Green,Magenta),""),
+        1:('{}[{}1{}]{} mp4'.format(Blue,Cyan,Blue,Green)," --merge-output-format mp4 "),
+        2:('{}[{}2{}]{} avi'.format(Blue,Cyan,Blue,Green)," --merge-output-format avi "),
+        3:('{}[{}3{}]{} mkv'.format(Blue,Cyan,Blue,Green)," --merge-output-format mkv "),
+        4:('{}[{}4{}]{} mov'.format(Blue,Cyan,Blue,Green)," --merge-output-format mov "),
+        5:('{}[{}5{}]{} flv'.format(Blue,Cyan,Blue,Green)," --merge-output-format flv ")
+        }
+        self.avcmd = ''
+        os.system("clear")
+        self.av()
+    def av(self,avtype = None, avformat = None, avext=None) -> None:
+        if avformat == None:
+            for i in self.av_dict:
+                k = self.av_dict[i]
+                print(k[0],k[1])
+            print("{}[{}11{}]{}  Exit".format(Blue,Cyan,Blue,Green))
+            try:
+                key = int(input("-> "))
+            except ValueError:
+                os.system("clear")
+                self.av(avtype,avformat,avext)
+                return
+            if key >= 0 and key <= 10:
+                cmmd = self.av_dict[key]
+                avformat = cmmd[2]
+                if 'video' in cmmd[1]:
+                    avtype = 'video'
+                else:
+                    avtype = 'audio'
+            elif key == 11:
+                sys.exit()
+            else:
+                os.system("clear")
+                self.av(avtype,avformat,avext)
+                return
+        if avext == None:
+            os.system("clear")
+            if avtype == 'audio':
+                avextdict = self.aformats
+            else:
+                avextdict = self.vformats
+            for i in avextdict:
+                k = avextdict[i]
+                print(k[0])
+            print("{}[{}6{}]{} Back".format(Blue,Cyan,Blue,Green))
+            try:
+                key = int(input("-> "))
+            except ValueError:
+                os.system("clear")
+                print("Invalid input")
+                self.av(avtype,avformat,avext=None)
+                return
+            if key >= 0 and key <= 5:
+                cmmd  = avextdict[key]
+                avext = cmmd[1]
+            elif key == 6:
+                os.system("clear")
+                self.av(None,None,None)
+                return
+            else:
+                os.system("clear")
+                self.av(avtype,avformat,None)
+                return
+        self.avcmd = avformat + ' ' + avext 
+#
+class SP:
+    def __init__(self) -> None:
+        try:
+            self.url = sys.argv[1]
+            if 'you' not in self.url:
+                print("Error: Not a valid youtube url. Enter a valid url")
+                sys.exit(2)
+        except IndexError:
+            print("Error: Url not specified.\n  Usage: termux-url-opener <url>")
+            sys.exit(2)
+        self.fplaylist = '%(title)s.%(ext)s\" "{}" '.format(self.url)
+        self.plstcmd = ''
+        if 'playlist' in self.url:
+            os.system("clear")
+            self.playlist()
+    def playlist(self):
+        def sr(s1=None,s2=None):
+            if s1 != None:
+                print("{}Starting Number{}: {}{}".format(Blue,Green,Red,s1))
+            else:
+                try:
+                    s1 = int(input(("{}Starting Number{}: {}".format(Blue,Green,Red))))
+                except ValueError:
+                    os.system("clear")
+                    sr(None,None)
+                    return
+            if s2 == None:
+                try:
+                    s2 = int(input(("{}Ending   Number{}: {}".format(Blue,Green,Red))))
+                except ValueError:
+                    os.system("clear")
+                    sr(s1,None)
+                    return
+            self.plstcmd = "%(playlist_index)s-%(title)s.%(ext)s\" --yes-playlist  --playlist-start {} --playlist-end {} ".format(s1,s2)
+
+        print("{}[{}0{}]{} Download Entire playlist".format(Blue,Cyan,Blue,Green))
+        print("{}[{}1{}]{} Download Specfic range  ".format(Blue,Cyan,Blue,Green))
+        try:
+            key = int(input("->"))
+        except ValueError:
+            os.system("clear")
+            self.playlist()
+            return
+        if key == 0:
+            self.plstcmd = "%(playlist_index)s-%(title)s.%(ext)s\" --yes-playlist"
+        elif key == 1:
+            os.system("clear")
+            sr()
+        else:
+            os.system("clear")
+            self.playlist()
+            return
+        self.fplaylist = self.plstcmd + ' "{}" '.format(self.url)
+
+def main():
+    os.system("clear")
+    sp  = SP()
+    av  = AV()
+    avc = av.avcmd
+    spc = sp.fplaylist
+    yt_dlp = 'yt-dlp  ' + avc + ' -o '+ SAVE_DIR + spc
+    os.system("clear")
+    os.system(yt_dlp)
+
+if __name__ == '__main__':
+    main()
