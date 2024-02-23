@@ -1,0 +1,100 @@
+#! /data/data/com.termux/files/usr/bin/python3
+import os, sys, datetime, functools, datetime
+dir = '/sdcard/Download/files/'
+
+class TOOL():
+    def __init__(self) -> None:
+        pass
+
+    def Execute(self,object,arg= None):
+        while True:
+            os.system('clear')
+            try:
+                return object() if arg is None else object(arg)
+            except KeyboardInterrupt:
+                break
+            except:
+                pass
+
+    def Url(self) -> str:
+        if 'http' not in sys.argv[1]  or 'you' not in sys.argv[1]:    sys.exit(2)
+        return sys.argv[1]
+
+    def Path(self,dir: str) -> str:
+        return dir+'%(title)s.%(ext)s' if 'playlist' not in self.Url() else dir+'%(playlist_index)s-%(title)s.%(ext)s'
+
+    def getIndex(self) -> str| Exception:
+        if 'playlist' not in self.Url():    return ''
+        playlist = input('Start-End: ')
+        if playlist == '':
+            return '--yes-playlist'
+        elif '-' in playlist:
+            num = [int(playlist[0:playlist.index('-')]),int(playlist[playlist.index('-')+ 1:])]
+            num = [num[0], num[1]] if num[0] < num[1] else [num[1], num[0]]
+            return '--yes-playlist --playlist-start {} --playlist-end {}'.format(str(num[0]),str(num[1]))
+        else:
+            raise Exception(IndexError)
+
+class YT(TOOL):
+    def __init__(self) -> None:
+        self.formats = {
+                0:('audio',' [0] 64K  ', ' -f "bestaudio[abr<=64]"' , ('webm', 'm4a' ,'mp3')),
+                1:('audio',' [1] 129K ', ' -f "bestaudio[abr<=129]"', ('webm', 'm4a' ,'mp3')),
+                2:('audio',' [2] 193K\n ', ' -f "bestaudio[abr<=193]"', ('webm', 'm4a' ,'mp3')),
+
+                3:('video',' [3] 144P ', ' -f "bestvideo[height<=144]+bestaudio[abr<=64]"', ('webm','mp4','avi')),
+                4:('video',' [4] 240P ', ' -f "bestvideo[height<=240]+bestaudio[abr<=64]"', ('webm','mp4','avi')),
+                5:('video',' [5] 360P ', ' -f "bestvideo[height<=360]+bestaudio[abr<=64]"', ('webm','mp4','avi')),
+                6:('video',' [6] 480P ', ' -f "bestvideo[height<=480]+bestaudio[abr<=129]"', ('webm','mp4','avi')),
+                7:('video',' [7] 720P ', ' -f "bestvideo[height<=720]+bestaudio[abr<=193]"', ('webm','mp4','avi'))
+                }
+
+    def Input(self) -> tuple:
+        for i in self.formats:
+            print(self.formats[i] [1])
+        input_ = int(input(' >-> '))
+        if input_ >= len(self.formats) or input_ < 0:    raise Exception()
+        return (input_,)
+
+    def Format(self,input_: tuple) -> tuple:
+        for i in self.formats[input_[0]] [3]:
+            print(" [{}] {}".format(self.formats[input_[0]] [3].index(i),i))
+        format_ = int(input(' >-> '))
+        if format_ >= len(self.formats[input_[0]] [3]) or format_ < 0:    raise Exception()
+        return (input_[0],format_)
+
+    def Manage(self,cmd: tuple) -> list:
+        if self.formats[cmd[0]] [3] [cmd[1]] == 'webm':
+            return ['yt-dlp', self.formats [cmd[0]] [2], ' -o "{}"'.format(self.Path(dir)),' {}'.format(self.Execute(self.getIndex)),' "{}"'.format(self.Url())]
+        else:
+            if self.formats[cmd[0]] [0] == 'audio':
+                return ['yt-dlp', self.formats [cmd[0]] [2], " --audio-format {}".format(self.formats[cmd[0]] [3] [cmd[1]]), ' -o "{}"'.format(self.Path(dir)),' {}'.format(self.Execute(self.getIndex)), ' "{}"'.format(self.Url())]
+            else:
+                return ['yt-dlp', self.formats [cmd[0]] [2], " --merge-output-format {}".format(self.formats[cmd[0]] [3] [cmd[1]]), ' -o "{}"'.format(self.Path(dir)),' {}'.format(self.Execute(self.getIndex)), ' "{}"'.format(self.Url())]
+
+makeCommand = lambda command: functools.reduce(lambda x, y: x+y, command) 
+
+def yt_dlp(isExecuted: bool) -> int:
+    yt      = YT()
+    input_  = yt.Execute(yt.Input)
+    format  = yt.Execute(yt.Format,input_)
+    manage  = yt.Execute(yt.Manage,format)
+    makeCmd = makeCommand(manage)
+    if isExecuted == False:
+        print(makeCmd)
+        return os.system(makeCmd)
+    else:
+        dt = str(datetime.datetime.today()).replace(' ','_')
+        makeCmd = makeCmd.replace('%(title)s',dt[0:dt.index('.')])
+        print(makeCmd)
+        return os.system(makeCmd)
+
+def main() -> None:
+    if '__main__' == __name__:
+        code = yt_dlp(False)
+        if code != 0:
+            code = yt_dlp(True)
+            print(code)
+            if code != 0:
+                input()
+main()
